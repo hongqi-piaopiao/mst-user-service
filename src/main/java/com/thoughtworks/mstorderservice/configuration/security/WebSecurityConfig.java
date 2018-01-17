@@ -31,17 +31,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers(HttpMethod.GET, "/health").permitAll()
+            .antMatchers(HttpMethod.POST, "/api/authentication").permitAll()
+            .anyRequest().authenticated();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.headers().cacheControl().and().contentTypeOptions().and().frameOptions();
         http.headers().xssProtection().and().httpStrictTransportSecurity();
-
-        http.authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/authentication").permitAll()
-                .anyRequest().authenticated();
-
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         http.exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint());
     }
 
